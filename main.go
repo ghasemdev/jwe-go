@@ -3,8 +3,9 @@ package main
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
+	"jwe-go/packages/json"
+	"jwe-go/packages/schema"
 	"jwe-go/routes"
-	"jwe-go/utils/json"
 	"net/http"
 	// "github.com/go-jose/go-jose/v4"
 )
@@ -15,7 +16,7 @@ type User struct {
 }
 
 func main() {
-	utils.Validate = validator.New(validator.WithRequiredStructEnabled())
+	schema.Validate = validator.New(validator.WithRequiredStructEnabled())
 
 	router := gin.Default()
 
@@ -34,7 +35,7 @@ func getUserEndpoint(c *gin.Context) {
 	user := User{Name: "John Doe", Email: "john.doe@example.com"}
 
 	// Use Jsoniter for marshaling
-	jsonData, err := utils.JSON.Marshal(user)
+	jsonData, err := json.CONFIG.Marshal(user)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "JSON encoding failed"})
 		return

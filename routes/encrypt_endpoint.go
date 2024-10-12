@@ -3,7 +3,8 @@ package routes
 import (
 	"github.com/gin-gonic/gin"
 	"jwe-go/model"
-	"jwe-go/utils/json"
+	"jwe-go/packages/json"
+	"jwe-go/packages/schema"
 	"net/http"
 )
 
@@ -18,13 +19,13 @@ func EncryptEndpoint(context *gin.Context) {
 	}
 
 	// Use strict unmarshaling
-	if err := utils.StrictUnmarshal(body, &encryption); err != nil {
+	if err := json.StrictUnmarshal(body, &encryption); err != nil {
 		context.JSON(http.StatusBadRequest, gin.H{"error": "Invalid JSON or unknown field"})
 		return
 	}
 
 	// Manually validate the struct using the validator
-	if err := utils.Validate.Struct(encryption); err != nil {
+	if err := schema.Validate.Struct(encryption); err != nil {
 		context.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
