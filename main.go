@@ -6,6 +6,7 @@ import (
 	"github.com/go-playground/validator/v10"
 	jsoniter "github.com/json-iterator/go"
 	"net/http"
+	// "github.com/go-jose/go-jose/v4"
 )
 
 var json = jsoniter.ConfigCompatibleWithStandardLibrary
@@ -16,6 +17,11 @@ var validate *validator.Validate
 type User struct {
 	Name  string `json:"name" validate:"required,min=3"`  // Name is required and should be at least 3 characters
 	Email string `json:"email" validate:"required,email"` // Email is required and should be a valid email format
+}
+
+type Encryption struct {
+	Plaintext  string `json:"plaintext" validate:"required"`
+	PublicKey string `json:"publicKey" validate:"required"`
 }
 
 func main() {
@@ -30,6 +36,7 @@ func main() {
 		v1.GET("/handshake", handshakeEndpoint)
 		v1.GET("/user", getUserEndpoint)
 		v1.POST("/user", postUserEndpoint)
+		v1.POST("/encrypt", encryptEndpoint)
 	}
 
 	router.Run(":8080")
@@ -79,6 +86,31 @@ func postUserEndpoint(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, user)
+}
+
+func encryptEndpoint(c *gin.Context) {
+	var encryption Encryption
+
+	// Use Jsoniter for decoding the JSON body
+	body, err := c.GetRawData()
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Failed to read request body"})
+		return
+	}
+
+	// Use strict unmarshaling
+	if err := strictUnmarshal(body, &encryption); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid JSON or unknown field"})
+		return
+	}
+
+	// Manually validate the struct using the validator
+	if err := validate.Struct(encryption); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, encryption)
 }
 
 // Custom unmarshaler that rejects extra fields
