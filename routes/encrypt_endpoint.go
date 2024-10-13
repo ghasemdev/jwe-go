@@ -2,14 +2,15 @@ package routes
 
 import (
 	"bytes"
-	"github.com/gin-gonic/gin"
-	"github.com/go-jose/go-jose/v4"
+	"crypto/rsa"
 	"jwe-go/model"
 	"jwe-go/packages/crypto"
 	"jwe-go/packages/json"
 	"jwe-go/packages/pool"
 	"jwe-go/packages/schema"
 	"net/http"
+	"github.com/gin-gonic/gin"
+	"github.com/go-jose/go-jose/v4"
 )
 
 func EncryptEndpoint(context *gin.Context) {
@@ -38,8 +39,21 @@ func EncryptEndpoint(context *gin.Context) {
 		return
 	}
 
-	// Import the public key from PEM
-	publicKey, err := crypto.ImportRSAPublicKeyFromPEM(encryption.PublicKeyPem)
+	var publicKey *rsa.PublicKey
+	var err error
+
+	// Try to import the RSA public key from either the Public Key PEM or Certificate PEM.
+	switch {
+	case len(encryption.PublicKeyPem) > 0:
+		publicKey, err = crypto.ImportRSAPublicKeyFromPEM(encryption.PublicKeyPem)
+	case len(encryption.CertificatePem) > 0:
+		publicKey, err = crypto.ImportRSAPublicKeyFromCertificatePEM(encryption.CertificatePem)
+	default:
+		context.JSON(http.StatusBadRequest, gin.H{"error": "No valid PEM provided"})
+		return
+	}
+
+	// Handle any error from the import functions.
 	if err != nil {
 		context.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return

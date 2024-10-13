@@ -21,9 +21,32 @@ func ExportRSAPublicKeyAsPEM(publicKey *rsa.PublicKey) (string, error) {
 	return string(pubPEM), nil
 }
 
+// ImportRSAPublicKeyFromCertificatePEM extracts the RSA public key from a PEM-encoded certificate.
+func ImportRSAPublicKeyFromCertificatePEM(certificatePEM string) (*rsa.PublicKey, error) {
+	// Decode the PEM block
+	block, _ := pem.Decode([]byte(addPEMHeaders(certificatePEM, "CERTIFICATE")))
+	if block == nil {
+		return nil, fmt.Errorf("failed to decode PEM block")
+	}
+
+	// Parse the certificate from the decoded block
+	cert, err := x509.ParseCertificate(block.Bytes)
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse certificate: %v", err)
+	}
+
+	// Extract the public key from the certificate and assert it as RSA
+	pubKey, ok := cert.PublicKey.(*rsa.PublicKey)
+	if !ok {
+		return nil, fmt.Errorf("certificate does not contain an RSA public key")
+	}
+
+	return pubKey, nil
+}
+
 // Import the RSA public key from PEM format
-func ImportRSAPublicKeyFromPEM(pemString string) (*rsa.PublicKey, error) {
-	block, _ := pem.Decode([]byte(addPEMHeaders(pemString)))
+func ImportRSAPublicKeyFromPEM(publicKeyPEM string) (*rsa.PublicKey, error) {
+	block, _ := pem.Decode([]byte(addPEMHeaders(publicKeyPEM, "PUBLIC KEY")))
 	if block == nil || block.Type != "PUBLIC KEY" {
 		return nil, fmt.Errorf("failed to decode PEM block")
 	}
@@ -42,12 +65,16 @@ func ImportRSAPublicKeyFromPEM(pemString string) (*rsa.PublicKey, error) {
 	return rsaPub, nil
 }
 
-func addPEMHeaders(pem string) string {
-	if !strings.Contains(pem, "-----BEGIN PUBLIC KEY-----") {
-		pem = fmt.Sprintf("-----BEGIN PUBLIC KEY-----\n%s", pem)
+func addPEMHeaders(pem, pemType string) string {
+	beginHeader := fmt.Sprintf("-----BEGIN %s-----", pemType)
+	endHeader := fmt.Sprintf("-----END %s-----", pemType)
+
+	if !strings.Contains(pem, beginHeader) {
+		pem = fmt.Sprintf("%s\n%s", beginHeader, pem)
 	}
-	if !strings.Contains(pem, "-----END PUBLIC KEY-----") {
-		pem = fmt.Sprintf("%s\n-----END PUBLIC KEY-----", pem)
+	if !strings.Contains(pem, endHeader) {
+		pem = fmt.Sprintf("%s\n%s", pem, endHeader)
 	}
+
 	return pem
 }
