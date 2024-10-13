@@ -9,7 +9,7 @@ import (
 func ConvertRSAPublicKeyToJWK(pubKey *rsa.PublicKey) (jose.JSONWebKey, error) {
 	jwk := jose.JSONWebKey{
 		Key:       pubKey,                    // Optionally set a key ID
-		Algorithm: string(jose.RSA_OAEP_256), // You can specify the algorithm
+		Algorithm: string(jose.RSA1_5), // You can specify the algorithm
 	}
 
 	return jwk, nil
