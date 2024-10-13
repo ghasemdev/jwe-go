@@ -1,0 +1,6 @@
+# .dockerignore
+*.go
+*.md
+Dockerfile
+go.sum
+go.mod
