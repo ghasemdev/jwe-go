@@ -40,6 +40,23 @@ func EncryptEndpoint(context *gin.Context) {
 		return
 	}
 
+	// Convert the RSA public key to a JWK
+	jwk, err := crypto.ConvertRSAPublicKeyToJWK(publicKey)
+	if err != nil {
+		context.JSON(
+			http.StatusInternalServerError,
+			gin.H{"error": fmt.Errorf("error converting public key to JWK:: %v", err).Error()},
+		)
+		return
+	}
+
+	// Compute thumbprint of the public key (SHA256)
+	thumbprint, err := crypto.GetJWKThumbprint(jwk)
+	if err != nil {
+		context.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to compute public key thumbprint"})
+		return
+	}
+
 	// Create JWE Encrypter with RSA-OAEP-256 and AES-GCM
 	encrypter, err := jose.NewEncrypter(
 		jose.A256GCM, // Content encryption algorithm
@@ -47,7 +64,7 @@ func EncryptEndpoint(context *gin.Context) {
 			Algorithm: jose.RSA_OAEP_256, // Key encryption algorithm
 			Key:       publicKey,         // Recipient's public key
 		},
-		nil, // Additional options (can be nil)
+		(&jose.EncrypterOptions{}).WithHeader("server_kid", thumbprint), // Add custom header (server_kid)
 	)
 	if err != nil {
 		context.JSON(
