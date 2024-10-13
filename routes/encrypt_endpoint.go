@@ -3,14 +3,14 @@ package routes
 import (
 	"bytes"
 	"crypto/rsa"
+	"github.com/gin-gonic/gin"
+	"github.com/go-jose/go-jose/v4"
 	"jwe-go/model"
 	"jwe-go/packages/crypto"
 	"jwe-go/packages/json"
 	"jwe-go/packages/pool"
 	"jwe-go/packages/schema"
 	"net/http"
-	"github.com/gin-gonic/gin"
-	"github.com/go-jose/go-jose/v4"
 )
 
 func EncryptEndpoint(context *gin.Context) {
@@ -44,6 +44,9 @@ func EncryptEndpoint(context *gin.Context) {
 
 	// Try to import the RSA public key from either the Public Key PEM or Certificate PEM.
 	switch {
+	case len(encryption.PublicKeyPem) > 0 && len(encryption.CertificatePem) > 0:
+		context.JSON(http.StatusBadRequest, gin.H{"error": "both PublicKeyPem and CertificatePem cannot be set at the same time"})
+		return
 	case len(encryption.PublicKeyPem) > 0:
 		publicKey, err = crypto.ImportRSAPublicKeyFromPEM(encryption.PublicKeyPem)
 	case len(encryption.CertificatePem) > 0:

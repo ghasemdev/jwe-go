@@ -1,93 +1,79 @@
 {
-	"info": {
-		"_postman_id": "ff183f9d-d843-4659-aeb1-b67dca6d2904",
-		"name": "JWE",
-		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "14846544"
-	},
-	"item": [
-		{
-			"name": "encrypt",
-			"request": {
-				"method": "POST",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{\r\n    \"plaintext\": \"Hello\",\r\n    \"publicKeyPem\": \"MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAt5TICyK59sJggCB8YbGp0uTYMTr3V4fJIvaZgujqEAEtGB6QDCS6IOnqtZzetVspDVH1tIV/wlOuFzgga3kKhMawb2Q/zKLTtK+QnNngaPcND8PClnY/ro1BBy9sxjO3FgCHKrRkRAnzif3qGLQHgvGNk1MWJ/qvdg8F2rCqAbcmCxdROUcLNEjbeW1pReSFEVOJRvrQDmDGvJRZArSx8CCCPRJPqzjByV3pSqqHCqIQ2P9aeXW8L1lvzOuwFCGpFupjoc5v3G8M8hthxGfueVjGz6iw0ka6+V/Zem6XkEJFXHWTnvmemYziMDswFE0GxpeizuVaY/jLZ30gCG/0CQIDAQAB\"\r\n}",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": {
-					"raw": "{{host}}/v1/encrypt",
-					"host": [
-						"{{host}}"
-					],
-					"path": [
-						"v1",
-						"encrypt"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "decrypt",
-			"request": {
-				"method": "POST",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{\r\n    \"ciphertext\": \"eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2R0NNIn0..Drq7NpAeq6PVWlyT.Z95Y6gDDWHpqpgWzptrghpNiIst2S3qFSdgmqJT8yKM4M2B58-r3sFKAHPx4wtVWnihWgW6ez9ttf8V0CIPJEstJqXOudGxzlzpKosBFwHpnbouaLNOnWQjPQGthufc.p4JT_Z5GxdABNhld0YpYLQ\",\r\n    \"secretKey\": \"Understandably-Daring-Return-857\"\r\n}",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": {
-					"raw": "{{host}}/v1/decrypt",
-					"host": [
-						"{{host}}"
-					],
-					"path": [
-						"v1",
-						"decrypt"
-					]
-				}
-			},
-			"response": []
-		}
-	],
-	"event": [
-		{
-			"listen": "prerequest",
-			"script": {
-				"type": "text/javascript",
-				"packages": {},
-				"exec": [
-					""
-				]
-			}
-		},
-		{
-			"listen": "test",
-			"script": {
-				"type": "text/javascript",
-				"packages": {},
-				"exec": [
-					""
-				]
-			}
-		}
-	],
-	"variable": [
-		{
-			"key": "host",
-			"value": "http://localhost:8080",
-			"type": "string"
-		}
-	]
+  "info": {
+    "_postman_id": "ff183f9d-d843-4659-aeb1-b67dca6d2904",
+    "name": "JWE",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "14846544"
+  },
+  "item": [
+    {
+      "name": "encrypt",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"plaintext\": \"Hello\",\r\n    \"certificatePem\": \"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\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{host}}/v1/encrypt",
+          "host": ["{{host}}"],
+          "path": ["v1", "encrypt"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "decrypt",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"ciphertext\": \"eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2R0NNIn0..Drq7NpAeq6PVWlyT.Z95Y6gDDWHpqpgWzptrghpNiIst2S3qFSdgmqJT8yKM4M2B58-r3sFKAHPx4wtVWnihWgW6ez9ttf8V0CIPJEstJqXOudGxzlzpKosBFwHpnbouaLNOnWQjPQGthufc.p4JT_Z5GxdABNhld0YpYLQ\",\r\n    \"secretKey\": \"Understandably-Daring-Return-857\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{host}}/v1/decrypt",
+          "host": ["{{host}}"],
+          "path": ["v1", "decrypt"]
+        }
+      },
+      "response": []
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "exec": [""]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "exec": [""]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "host",
+      "value": "http://localhost:8080",
+      "type": "string"
+    }
+  ]
 }
