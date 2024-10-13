@@ -50,14 +50,20 @@ func EncryptEndpoint(context *gin.Context) {
 		nil, // Additional options (can be nil)
 	)
 	if err != nil {
-		context.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Errorf("error creating encrypter: %v", err).Error()})
+		context.JSON(
+			http.StatusInternalServerError,
+			gin.H{"error": fmt.Errorf("error creating encrypter: %v", err).Error()},
+		)
 		return
 	}
 
 	// Encrypt the data
 	jwe, err := encrypter.Encrypt([]byte(encryption.Plaintext))
 	if err != nil {
-		context.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Errorf("error encrypting data: %v", err).Error()})
+		context.JSON(
+			http.StatusInternalServerError,
+			gin.H{"error": fmt.Errorf("error encrypting data: %v", err).Error()},
+		)
 		return
 	}
 
@@ -68,5 +74,5 @@ func EncryptEndpoint(context *gin.Context) {
 		return
 	}
 
-	context.JSON(http.StatusOK, serialized)
+	context.String(http.StatusOK, serialized)
 }
