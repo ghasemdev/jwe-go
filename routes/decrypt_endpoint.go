@@ -1,11 +1,12 @@
 package routes
 
 import (
-	"fmt"
+	"bytes"
 	"github.com/gin-gonic/gin"
 	"github.com/go-jose/go-jose/v4"
 	"jwe-go/model"
 	"jwe-go/packages/json"
+	"jwe-go/packages/pool"
 	"jwe-go/packages/schema"
 	"net/http"
 )
@@ -13,15 +14,19 @@ import (
 func DecryptEndpoint(context *gin.Context) {
 	var decryption model.DecryptRequest
 
-	// Use Jsoniter for decoding the JSON body
-	body, err := context.GetRawData()
-	if err != nil {
+	// Get a buffer from the pool
+	buf := pool.BufPool.Get().(*bytes.Buffer)
+	buf.Reset()
+	defer pool.BufPool.Put(buf)
+
+	// Read request body
+	if _, err := buf.ReadFrom(context.Request.Body); err != nil {
 		context.JSON(http.StatusBadRequest, gin.H{"error": "Failed to read request body"})
 		return
 	}
 
 	// Use strict unmarshaling
-	if err := json.StrictUnmarshal(body, &decryption); err != nil {
+	if err := json.StrictUnmarshal(buf.Bytes(), &decryption); err != nil {
 		context.JSON(http.StatusBadRequest, gin.H{"error": "Invalid JSON or unknown field"})
 		return
 	}
@@ -39,19 +44,13 @@ func DecryptEndpoint(context *gin.Context) {
 		[]jose.ContentEncryption{jose.A256GCM},
 	)
 	if err != nil {
-		context.JSON(
-			http.StatusBadRequest,
-			gin.H{"error": fmt.Errorf("error parsing encrypted message: %v", err).Error()},
-		)
+		context.JSON(http.StatusBadRequest, err.Error())
 		return
 	}
 
 	decrypted, err := decryptedObject.Decrypt(decryption.SecretKey)
 	if err != nil {
-		context.JSON(
-			http.StatusBadRequest,
-			gin.H{"error": fmt.Errorf("error decrypting message: %v", err).Error()},
-		)
+		context.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 

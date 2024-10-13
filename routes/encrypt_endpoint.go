@@ -1,12 +1,13 @@
 package routes
 
 import (
-	"fmt"
+	"bytes"
 	"github.com/gin-gonic/gin"
 	"github.com/go-jose/go-jose/v4"
 	"jwe-go/model"
 	"jwe-go/packages/crypto"
 	"jwe-go/packages/json"
+	"jwe-go/packages/pool"
 	"jwe-go/packages/schema"
 	"net/http"
 )
@@ -14,15 +15,19 @@ import (
 func EncryptEndpoint(context *gin.Context) {
 	var encryption model.EncryptRequest
 
-	// Use Jsoniter for decoding the JSON body
-	body, err := context.GetRawData()
-	if err != nil {
+	// Get a buffer from the pool
+	buf := pool.BufPool.Get().(*bytes.Buffer)
+	buf.Reset()
+	defer pool.BufPool.Put(buf)
+
+	// Read request body
+	if _, err := buf.ReadFrom(context.Request.Body); err != nil {
 		context.JSON(http.StatusBadRequest, gin.H{"error": "Failed to read request body"})
 		return
 	}
 
 	// Use strict unmarshaling
-	if err := json.StrictUnmarshal(body, &encryption); err != nil {
+	if err := json.StrictUnmarshal(buf.Bytes(), &encryption); err != nil {
 		context.JSON(http.StatusBadRequest, gin.H{"error": "Invalid JSON or unknown field"})
 		return
 	}
@@ -43,10 +48,7 @@ func EncryptEndpoint(context *gin.Context) {
 	// Convert the RSA public key to a JWK
 	jwk, err := crypto.ConvertRSAPublicKeyToJWK(publicKey)
 	if err != nil {
-		context.JSON(
-			http.StatusInternalServerError,
-			gin.H{"error": fmt.Errorf("error converting public key to JWK:: %v", err).Error()},
-		)
+		context.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
@@ -67,20 +69,14 @@ func EncryptEndpoint(context *gin.Context) {
 		(&jose.EncrypterOptions{}).WithHeader("server_kid", thumbprint), // Add custom header (server_kid)
 	)
 	if err != nil {
-		context.JSON(
-			http.StatusInternalServerError,
-			gin.H{"error": fmt.Errorf("error creating encrypter: %v", err).Error()},
-		)
+		context.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
 	// Encrypt the data
 	jwe, err := encrypter.Encrypt([]byte(encryption.Plaintext))
 	if err != nil {
-		context.JSON(
-			http.StatusInternalServerError,
-			gin.H{"error": fmt.Errorf("error encrypting data: %v", err).Error()},
-		)
+		context.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
