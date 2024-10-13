@@ -1,0 +1,93 @@
+{
+	"info": {
+		"_postman_id": "ff183f9d-d843-4659-aeb1-b67dca6d2904",
+		"name": "JWE",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "14846544"
+	},
+	"item": [
+		{
+			"name": "encrypt",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"plaintext\": \"Hello\",\r\n    \"publicKeyPem\": \"MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAt5TICyK59sJggCB8YbGp0uTYMTr3V4fJIvaZgujqEAEtGB6QDCS6IOnqtZzetVspDVH1tIV/wlOuFzgga3kKhMawb2Q/zKLTtK+QnNngaPcND8PClnY/ro1BBy9sxjO3FgCHKrRkRAnzif3qGLQHgvGNk1MWJ/qvdg8F2rCqAbcmCxdROUcLNEjbeW1pReSFEVOJRvrQDmDGvJRZArSx8CCCPRJPqzjByV3pSqqHCqIQ2P9aeXW8L1lvzOuwFCGpFupjoc5v3G8M8hthxGfueVjGz6iw0ka6+V/Zem6XkEJFXHWTnvmemYziMDswFE0GxpeizuVaY/jLZ30gCG/0CQIDAQAB\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{host}}/v1/encrypt",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"v1",
+						"encrypt"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "decrypt",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"ciphertext\": \"eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2R0NNIn0..Drq7NpAeq6PVWlyT.Z95Y6gDDWHpqpgWzptrghpNiIst2S3qFSdgmqJT8yKM4M2B58-r3sFKAHPx4wtVWnihWgW6ez9ttf8V0CIPJEstJqXOudGxzlzpKosBFwHpnbouaLNOnWQjPQGthufc.p4JT_Z5GxdABNhld0YpYLQ\",\r\n    \"secretKey\": \"Understandably-Daring-Return-857\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{host}}/v1/decrypt",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"v1",
+						"decrypt"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "host",
+			"value": "http://localhost:8080",
+			"type": "string"
+		}
+	]
+}
