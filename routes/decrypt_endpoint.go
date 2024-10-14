@@ -2,13 +2,15 @@ package routes
 
 import (
 	"bytes"
-	"github.com/gin-gonic/gin"
-	"github.com/go-jose/go-jose/v4"
+	"encoding/base64"
 	"jwe-go/model"
 	"jwe-go/packages/json"
 	"jwe-go/packages/pool"
 	"jwe-go/packages/schema"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
+	"github.com/go-jose/go-jose/v4"
 )
 
 func DecryptEndpoint(context *gin.Context) {
@@ -48,9 +50,31 @@ func DecryptEndpoint(context *gin.Context) {
 		return
 	}
 
-	decrypted, err := decryptedObject.Decrypt(decryption.SecretKey)
-	if err != nil {
-		context.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+	var decrypted []byte
+	var secKeyError error
+
+	switch {
+	case len(decryption.SecretKey) > 0 && len(decryption.SecretKeyBase64) > 0:
+		context.JSON(http.StatusBadRequest, gin.H{"error": "both SecretKey and SecretKeyBase64 cannot be set at the same time"})
+		return
+	case len(decryption.SecretKey) == 32:
+		decrypted, secKeyError = decryptedObject.Decrypt(decryption.SecretKey)
+	case len(decryption.SecretKeyBase64) > 0:
+		secretKey, err := base64.RawURLEncoding.DecodeString(decryption.SecretKeyBase64)
+
+		if err != nil {
+			context.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+
+		decrypted, secKeyError = decryptedObject.Decrypt(secretKey)
+	default:
+		context.JSON(http.StatusBadRequest, gin.H{"error": "No valid secret key provided"})
+		return
+	}
+
+	if secKeyError != nil {
+		context.JSON(http.StatusBadRequest, gin.H{"error": secKeyError.Error()})
 		return
 	}
 
