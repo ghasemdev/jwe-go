@@ -10,6 +10,7 @@ import (
 func main() {
 	schema.Validate = validator.New(validator.WithRequiredStructEnabled())
 
+	gin.SetMode(gin.ReleaseMode)
 	router := gin.Default()
 
 	// Simple group: v1
