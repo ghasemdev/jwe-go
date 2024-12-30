@@ -5,7 +5,6 @@ import (
 	"encoding/base64"
 	"fmt"
 	"github.com/go-jose/go-jose/v4"
-	"strings"
 )
 
 // GetJWKThumbprint calculates the thumbprint of the JWK using SHA-256
@@ -16,8 +15,8 @@ func GetJWKThumbprint(jwk jose.JSONWebKey) (string, error) {
 	}
 
 	// Encode the thumbprint as Base64 (URL encoding, no padding)
-	thumbprintBase64 := base64.URLEncoding.EncodeToString(thumbprint)
+	thumbprintBase64 := base64.RawURLEncoding.EncodeToString(thumbprint)
 
 	// Replace all occurrences of "=" with an empty string ""
-	return strings.Replace(thumbprintBase64, "=", "", -1), nil
+	return thumbprintBase64, nil
 }
