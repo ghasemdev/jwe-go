@@ -2,7 +2,7 @@ package crypto
 
 import (
 	"crypto/rsa"
-	"github.com/go-jose/go-jose/v4"
+	"github.com/ghasemdev/go-jose/v4"
 )
 
 // ConvertRSAPublicKeyToJWK converts the RSA public key to a JWK (JSON Web Key)

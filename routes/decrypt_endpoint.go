@@ -10,7 +10,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/go-jose/go-jose/v4"
+	"github.com/ghasemdev/go-jose/v4"
 )
 
 func DecryptEndpoint(context *gin.Context) {

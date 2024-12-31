@@ -4,7 +4,7 @@ import (
 	"crypto"
 	"encoding/base64"
 	"fmt"
-	"github.com/go-jose/go-jose/v4"
+	"github.com/ghasemdev/go-jose/v4"
 )
 
 // GetJWKThumbprint calculates the thumbprint of the JWK using SHA-256

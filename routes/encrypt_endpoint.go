@@ -2,9 +2,10 @@ package routes
 
 import (
 	"bytes"
+	"encoding/base64"
 	"crypto/rsa"
 	"github.com/gin-gonic/gin"
-	"github.com/go-jose/go-jose/v4"
+	"github.com/ghasemdev/go-jose/v4"
 	"jwe-go/model"
 	"jwe-go/packages/crypto"
 	"jwe-go/packages/json"
@@ -90,8 +91,15 @@ func EncryptEndpoint(context *gin.Context) {
 		return
 	}
 
+	secretKey, err := base64.RawURLEncoding.DecodeString(encryption.SecretKeyBase64)
+
+	if err != nil {
+		context.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
 	// Encrypt the data
-	jwe, err := encrypter.Encrypt([]byte(encryption.Plaintext))
+	jwe, err := encrypter.EncryptWithCek([]byte(encryption.Plaintext), secretKey)
 	if err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

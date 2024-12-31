@@ -4,7 +4,7 @@ go 1.23.4
 
 require (
 	github.com/gin-gonic/gin v1.10.0
-	github.com/go-jose/go-jose/v4 v4.0.4
+	github.com/ghasemdev/go-jose/v4 v4.0.4-f3
 	github.com/go-playground/validator/v10 v10.23.0
 	github.com/json-iterator/go v1.1.12
 )
